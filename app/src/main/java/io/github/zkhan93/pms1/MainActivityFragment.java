@@ -64,7 +64,7 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                URL url = new URL(Constants.);
+                URL url = new URL(Constants.URL.POP_MOVIES);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 InputStream is = connection.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -73,7 +73,7 @@ public class MainActivityFragment extends Fragment {
                 while ((line = br.readLine()) != null) {
                     buffer.append(line + "\n");
                 }
-                JSONObject
+                //TODO: parse the data to json and populate adapter with data
             } catch (MalformedURLException urlEx) {
                 Log.e(TAG, "could not parse url " + urlEx);
             } catch (IOException ioEx) {
