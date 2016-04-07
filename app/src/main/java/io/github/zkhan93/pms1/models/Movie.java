@@ -7,9 +7,10 @@ import java.util.Date;
  * Created by Zeeshan Khan on 4/7/2016.
  */
 public class Movie {
-    private String title, overview, poster_path;
+    private String title, overview, posterPath;
     private Date releaseDate;
     private float rating;
+    private static String POSTER_URL_PREFIX = "http://image.tmdb.org/t/p/w185";
 
     public String getTitle() {
         return title;
@@ -27,12 +28,12 @@ public class Movie {
         this.overview = overview;
     }
 
-    public String getPoster_path() {
-        return poster_path;
+    public String getPosterPath() {
+        return posterPath;
     }
 
-    public void setPoster_path(String poster_path) {
-        this.poster_path = poster_path;
+    public void setPosterPath(String posterPath) {
+        this.posterPath = POSTER_URL_PREFIX + posterPath;
     }
 
     public Date getReleaseDate() {
