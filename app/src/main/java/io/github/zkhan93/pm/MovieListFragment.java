@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,8 +25,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import io.github.zkhan93.pm.adapter.MovieListAdapter;
@@ -39,6 +42,8 @@ public class MovieListFragment extends Fragment {
     public static final String TAG = MovieListFragment.class.getSimpleName();
     private RecyclerView movieListView;
     private MovieListAdapter movieAdapter;
+    ArrayList<Movie> movies;
+    private String sortOrder = "1";
 
     public MovieListFragment() {
     }
@@ -53,32 +58,57 @@ public class MovieListFragment extends Fragment {
             @Override
             public void onClick(Movie movie) {
                 Bundle bundle = new Bundle();
-                bundle.putString("movie", movie.getTitle());
+                bundle.putParcelable("movie", movie);
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
-        if (savedInstanceState != null) {
-            //TODO:add Movies to movieAdapter from savedInstanceState
-            //rotation or configuration change
-        }
         movieListView.setAdapter(movieAdapter);
-
+        sortOrder = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString
+                (getString(R.string
+                        .pref_sort_order_key), "1");
+        if (savedInstanceState != null) {
+            this.movies = savedInstanceState.getParcelableArrayList("movies");
+            movieAdapter.addAll(movies);
+        } else {
+            new FetchMovies().execute();
+        }
         return rootView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        new FetchMovies().execute();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String newSortOrder = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string
+                        .pref_sort_order_key), "1");
+        if (!sortOrder.equals(newSortOrder)) {
+            new FetchMovies().execute();
+            sortOrder = newSortOrder;
+        }
     }
 
     private class FetchMovies extends AsyncTask<Void, Void, List<Movie>> {
         @Override
         protected List<Movie> doInBackground(Void... params) {
             try {
-                URL url = new URL(Uri.parse(Constants.URL.POP_MOVIES).buildUpon()
+                String baseurl;
+                if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getString
+                        (getString(R.string
+                                .pref_sort_order_key), "1").equals("1")) {
+                    
+                    baseurl = Constants.URL.POP_MOVIES;
+                } else {
+                    baseurl = Constants.URL.TOP_MOVIES;
+                }
+                URL url = new URL(Uri.parse(baseurl).buildUpon()
                         .appendQueryParameter(Constants.PARAMS.API_KEY, Constants.VALUES.API_KEY)
                         .toString());
 
@@ -107,15 +137,20 @@ public class MovieListFragment extends Fragment {
                         movie.setOverview(jMovie.optString(Constants.JSON_KEYS.MOVIE.OVERVIEW));
                         movie.setPosterPath(jMovie.optString(Constants.JSON_KEYS.MOVIE
                                 .POSTER_PATH));
-                        movie.setReleaseDate(new Date(jMovie.optLong(Constants.JSON_KEYS.MOVIE
-                                .RELEASE_DATE)));
+                        try {
+                            movie.setReleaseDate(new SimpleDateFormat(Constants.DATE_FORMAT)
+                                    .parse(jMovie.optString(Constants.JSON_KEYS.MOVIE
+                                            .RELEASE_DATE)));
+
+                        } catch (ParseException pex) {
+                            Log.e(TAG, "error parsing date string in movie");
+                        }
                         movie.setRating((float) jMovie.optDouble(Constants.JSON_KEYS.MOVIE
                                 .VOTE_AVERAGE));
                         movieList.add(movie);
                     }
                     return movieList;
                 }
-                //TODO: parse the data to json and populate adapter with data
             } catch (MalformedURLException urlEx) {
                 Log.e(TAG, "could not parse url " + urlEx);
             } catch (IOException ioEx) {
@@ -133,7 +168,15 @@ public class MovieListFragment extends Fragment {
 
             if (movieAdapter != null)
                 movieAdapter.addAll(movies);
+            MovieListFragment.this.movies = (ArrayList) movies;
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (movies != null && movies.size() > 0) {
+            outState.putParcelableArrayList("movies", movies);
+        }
+    }
 }

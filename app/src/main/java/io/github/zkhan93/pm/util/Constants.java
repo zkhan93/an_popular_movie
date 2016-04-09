@@ -20,6 +20,8 @@ public interface Constants {
         String API_KEY = "2fd87bede1a929a29d3d5ada6b2bb1db";
     }
 
+    String DATE_FORMAT = "yyyy-MM-dd";
+
     //possible JSON keys we will be using
     interface JSON_KEYS {
         String RESULT = "results";

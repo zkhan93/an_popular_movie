@@ -5,6 +5,11 @@
                 tools:context=".MainActivityFragment"
                 tools:showIn="@layout/activity_main">
 
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/movie_list"
         android:layout_width="match_parent"

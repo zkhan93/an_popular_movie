@@ -29,6 +29,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.github.zkhan93.pm.MainActivity" />
         </activity>
+        <activity
+            android:name=".PreferenceActivity"
+            android:label="@string/title_activity_preference"
+            android:parentActivityName=".PreferenceActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.github.zkhan93.pm.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
