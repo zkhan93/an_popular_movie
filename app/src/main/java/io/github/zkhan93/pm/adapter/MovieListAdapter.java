@@ -1,4 +1,4 @@
-package io.github.zkhan93.pms1.adapter;
+package io.github.zkhan93.pm.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -12,8 +12,8 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.zkhan93.pms1.R;
-import io.github.zkhan93.pms1.models.Movie;
+import io.github.zkhan93.pm.R;
+import io.github.zkhan93.pm.models.Movie;
 
 /**
  * Created by Zeeshan Khan on 4/7/2016.

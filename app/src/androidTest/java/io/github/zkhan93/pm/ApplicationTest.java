@@ -1,4 +1,4 @@
-package io.github.zkhan93.pms1;
+package io.github.zkhan93.pm;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

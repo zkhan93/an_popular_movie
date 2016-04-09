@@ -1,6 +1,5 @@
-package io.github.zkhan93.pms1;
+package io.github.zkhan93.pm;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,8 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,26 +20,26 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.zkhan93.pms1.adapter.MovieListAdapter;
-import io.github.zkhan93.pms1.models.Movie;
-import io.github.zkhan93.pms1.util.Constants;
+import io.github.zkhan93.pm.adapter.MovieListAdapter;
+import io.github.zkhan93.pm.models.Movie;
+import io.github.zkhan93.pm.util.Constants;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
-    public static final String TAG = MainActivityFragment.class.getSimpleName();
+public class MovieListFragment extends Fragment {
+    public static final String TAG = MovieListFragment.class.getSimpleName();
     private RecyclerView movieListView;
     private List<Movie> movieList;
     private RecyclerView.Adapter<MovieListAdapter.ViewHolder> movieAdapter;
 
-    public MainActivityFragment() {
+    public MovieListFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_movie_list, container, false);
         movieListView = (RecyclerView) rootView.findViewById(R.id.movie_list);
         movieListView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         movieAdapter = new MovieListAdapter(new ArrayList<Movie>());

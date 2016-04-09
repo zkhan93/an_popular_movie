@@ -1,4 +1,4 @@
-package io.github.zkhan93.pms1.util;
+package io.github.zkhan93.pm.util;
 
 /**
  * To store Some Constant values

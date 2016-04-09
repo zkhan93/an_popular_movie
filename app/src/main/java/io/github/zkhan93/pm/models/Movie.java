@@ -1,4 +1,4 @@
-package io.github.zkhan93.pms1.models;
+package io.github.zkhan93.pm.models;
 
 import java.util.Date;
 
