@@ -35,7 +35,7 @@
                 android:id="@+id/movie_poster"
                 android:layout_width="150dp"
                 android:layout_height="200dp"
-                android:src="@drawable/interstellar"
+
                 />
 
             <LinearLayout
@@ -62,8 +62,8 @@
                     android:id="@+id/movie_mark_fav"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="mark fav"
-                    android:visibility="gone"/>
+                    android:text="Mark as Favorite"
+                    />
             </LinearLayout>
 
 
@@ -77,6 +77,13 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="overview"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/movie_trailer_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
     </LinearLayout>
 </ScrollView>
 

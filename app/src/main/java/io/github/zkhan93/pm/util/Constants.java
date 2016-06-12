@@ -16,10 +16,6 @@ public interface Constants {
         String API_KEY = "api_key";
     }
 
-    interface VALUES {
-        String API_KEY = ""; //set PIA Key here
-    }
-
     String DATE_FORMAT = "yyyy-MM-dd";
 
     //possible JSON keys we will be using

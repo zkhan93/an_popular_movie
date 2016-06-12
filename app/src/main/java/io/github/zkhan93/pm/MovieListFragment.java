@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,9 +45,9 @@ public class MovieListFragment extends Fragment {
     private MovieListAdapter movieAdapter;
     ArrayList<Movie> movies;
     private String sortOrder = "1";
-
     public MovieListFragment() {
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,7 +62,8 @@ public class MovieListFragment extends Fragment {
                 bundle.putParcelable("movie", movie);
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
                 intent.putExtras(bundle);
-                startActivity(intent);
+                ((Callback)getActivity()).OnItemSelected(intent);
+
             }
         });
         movieListView.setAdapter(movieAdapter);
@@ -109,7 +111,7 @@ public class MovieListFragment extends Fragment {
                     baseurl = Constants.URL.TOP_MOVIES;
                 }
                 URL url = new URL(Uri.parse(baseurl).buildUpon()
-                        .appendQueryParameter(Constants.PARAMS.API_KEY, Constants.VALUES.API_KEY)
+                        .appendQueryParameter(Constants.PARAMS.API_KEY,BuildConfig.API_KEY)
                         .toString());
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -178,5 +180,8 @@ public class MovieListFragment extends Fragment {
         if (movies != null && movies.size() > 0) {
             outState.putParcelableArrayList("movies", movies);
         }
+    }
+    public interface Callback{
+        void OnItemSelected(Intent intent);
     }
 }
