@@ -3,6 +3,8 @@ package io.github.zkhan93.pm.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 /**
@@ -10,11 +12,16 @@ import java.util.Date;
  * Created by Zeeshan Khan on 4/7/2016.
  */
 public class Movie implements Parcelable {
-    private String title, overview, posterPath;
+    private String title, overview;
+    @SerializedName("poster_path")
+    private String posterPath;
+    @SerializedName("release_date")
     private Date releaseDate;
+    @SerializedName("vote_average")
     private float rating;
+    private boolean isFavorite;
+    private int id;
     private static String POSTER_URL_PREFIX = "http://image.tmdb.org/t/p/w185";
-
 
     public Movie() {
     }
@@ -25,6 +32,10 @@ public class Movie implements Parcelable {
         this.posterPath = in.readString();
         this.releaseDate = new Date(in.readLong());
         this.rating = in.readFloat();
+        boolean[] flags = new boolean[1];
+        in.readBooleanArray(flags);
+        this.isFavorite = flags[0];
+        id=in.readInt();
     }
 
     public String getTitle() {
@@ -48,7 +59,11 @@ public class Movie implements Parcelable {
     }
 
     public void setPosterPath(String posterPath) {
-        this.posterPath = POSTER_URL_PREFIX + posterPath;
+        this.posterPath = posterPath;
+    }
+
+    public String getFullPosterPath() {
+        return POSTER_URL_PREFIX + posterPath;
     }
 
     public Date getReleaseDate() {
@@ -72,6 +87,10 @@ public class Movie implements Parcelable {
         return 1;
     }
 
+    public int getId() {
+        return id;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(title);
@@ -79,6 +98,8 @@ public class Movie implements Parcelable {
         dest.writeString(posterPath);
         dest.writeLong(releaseDate.getTime());
         dest.writeFloat(rating);
+        dest.writeBooleanArray(new boolean[]{isFavorite});
+        dest.writeInt(id);
     }
 
     public static final Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

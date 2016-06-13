@@ -12,9 +12,9 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.zkhan93.pm.MovieListFragment;
 import io.github.zkhan93.pm.R;
 import io.github.zkhan93.pm.models.Movie;
-import io.github.zkhan93.pm.models.OnMovieClickListener;
 
 /**
  * Created by Zeeshan Khan on 4/7/2016.
@@ -22,9 +22,9 @@ import io.github.zkhan93.pm.models.OnMovieClickListener;
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.ViewHolder> {
     private List<Movie> movieList = null;
     public static String TAG = MovieListAdapter.class.getSimpleName();
-    private OnMovieClickListener onClickListener;
+    private MovieListFragment.OnMovieClickListener onClickListener;
 
-    public MovieListAdapter(List<Movie> movieList, OnMovieClickListener onClickListener) {
+    public MovieListAdapter(List<Movie> movieList, MovieListFragment.OnMovieClickListener onClickListener) {
         if (movieList != null)
             this.movieList = movieList;
         else
@@ -56,7 +56,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_item,
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_list_item,
                 parent, false);
         return new ViewHolder(itemView, parent.getContext(), onClickListener);
 
@@ -67,7 +67,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         Context context;
         private Movie movie;
 
-        public ViewHolder(View parent, Context context, final OnMovieClickListener
+        public ViewHolder(View parent, Context context, final MovieListFragment.OnMovieClickListener
                 onClickListener) {
             super(parent);
             this.context = context;
@@ -81,7 +81,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         }
 
         public void populateView(Movie movie) {
-            Picasso.with(context).load(movie.getPosterPath()).into(poster);
+            Picasso.with(context).load(movie.getFullPosterPath()).error(R.drawable
+                    .ic_error_outline_white_36dp).into(poster);
             this.movie = movie;
         }
 

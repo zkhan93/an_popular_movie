@@ -1,11 +1,8 @@
 package io.github.zkhan93.pm;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,38 +10,56 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.zkhan93.pm.adapter.MovieListAdapter;
+import io.github.zkhan93.pm.api.ApiServiceGenerator;
+import io.github.zkhan93.pm.api.MovieDbClient;
 import io.github.zkhan93.pm.models.Movie;
-import io.github.zkhan93.pm.models.OnMovieClickListener;
-import io.github.zkhan93.pm.util.Constants;
+import io.github.zkhan93.pm.models.MovieResult;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MovieListFragment extends Fragment {
-    public static final String TAG = MovieListFragment.class.getSimpleName();
     private RecyclerView movieListView;
     private MovieListAdapter movieAdapter;
     ArrayList<Movie> movies;
-    private String sortOrder = "1";
+    private String sortOrder;
+    private MovieDbClient mMovieDbClient;
+    private retrofit2.Callback<MovieResult> clientCallback;
+    public static final String TAG = MovieListFragment.class.getSimpleName();
+
+    {
+        clientCallback = new retrofit2.Callback<MovieResult>() {
+            @Override
+            public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
+                if (response == null || !response.isSuccessful() || response.body() == null) {
+                    Log.d(TAG, "no response");
+                    return;
+                }
+                List<Movie> movies = response.body().getResults();
+                if (movies == null || movies.size() == 0) {
+                    Log.d(TAG, "movie list is empty");
+                    return;
+                }
+                if (movieAdapter != null)
+                    movieAdapter.addAll(movies);
+                MovieListFragment.this.movies = (ArrayList) movies;
+            }
+
+            @Override
+            public void onFailure(Call<MovieResult> call, Throwable t) {
+                Log.e(TAG, "error fetching movies url:" + call.request().url() + " error:" + t
+                        .getLocalizedMessage());
+            }
+        };
+    }
+
     public MovieListFragment() {
     }
 
@@ -62,7 +77,7 @@ public class MovieListFragment extends Fragment {
                 bundle.putParcelable("movie", movie);
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
                 intent.putExtras(bundle);
-                ((Callback)getActivity()).OnItemSelected(intent);
+                ((Callback) getActivity()).OnItemSelected(intent);
 
             }
         });
@@ -70,11 +85,17 @@ public class MovieListFragment extends Fragment {
         sortOrder = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString
                 (getString(R.string
                         .pref_sort_order_key), "1");
+        //initializing retrofit client
+        mMovieDbClient = ApiServiceGenerator.createClient(MovieDbClient.class);
         if (savedInstanceState != null) {
             this.movies = savedInstanceState.getParcelableArrayList("movies");
             movieAdapter.addAll(movies);
         } else {
-            new FetchMovies().execute();
+            if (sortOrder.equals("1")) {
+                mMovieDbClient.popular().enqueue(clientCallback);
+            } else {
+                mMovieDbClient.topRated().enqueue(clientCallback);
+            }
         }
         return rootView;
     }
@@ -92,87 +113,15 @@ public class MovieListFragment extends Fragment {
                 .getString(getString(R.string
                         .pref_sort_order_key), "1");
         if (!sortOrder.equals(newSortOrder)) {
-            new FetchMovies().execute();
+            if (newSortOrder.equals("1")) {
+                mMovieDbClient.popular().enqueue(clientCallback);
+            } else {
+                mMovieDbClient.topRated().enqueue(clientCallback);
+            }
             sortOrder = newSortOrder;
         }
     }
 
-    private class FetchMovies extends AsyncTask<Void, Void, List<Movie>> {
-        @Override
-        protected List<Movie> doInBackground(Void... params) {
-            try {
-                String baseurl;
-                if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getString
-                        (getString(R.string
-                                .pref_sort_order_key), "1").equals("1")) {
-                    
-                    baseurl = Constants.URL.POP_MOVIES;
-                } else {
-                    baseurl = Constants.URL.TOP_MOVIES;
-                }
-                URL url = new URL(Uri.parse(baseurl).buildUpon()
-                        .appendQueryParameter(Constants.PARAMS.API_KEY,BuildConfig.API_KEY)
-                        .toString());
-
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                InputStream is = connection.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                String line = null;
-                StringBuffer buffer = new StringBuffer();
-                while ((line = br.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-                JSONObject response = new JSONObject(buffer.toString());
-                if (response != null) {
-                    JSONArray movieArray = response.optJSONArray(Constants.JSON_KEYS.RESULT);
-                    if (movieArray == null)
-                        return null;
-                    Movie movie;
-                    JSONObject jMovie;
-                    List<Movie> movieList = new ArrayList<>();
-                    for (int i = 0; i < movieArray.length(); i++) {
-                        movie = new Movie();
-                        jMovie = movieArray.optJSONObject(i);
-                        if (jMovie == null)
-                            continue;
-                        movie.setTitle(jMovie.optString(Constants.JSON_KEYS.MOVIE.TITLE));
-                        movie.setOverview(jMovie.optString(Constants.JSON_KEYS.MOVIE.OVERVIEW));
-                        movie.setPosterPath(jMovie.optString(Constants.JSON_KEYS.MOVIE
-                                .POSTER_PATH));
-                        try {
-                            movie.setReleaseDate(new SimpleDateFormat(Constants.DATE_FORMAT)
-                                    .parse(jMovie.optString(Constants.JSON_KEYS.MOVIE
-                                            .RELEASE_DATE)));
-
-                        } catch (ParseException pex) {
-                            Log.e(TAG, "error parsing date string in movie");
-                        }
-                        movie.setRating((float) jMovie.optDouble(Constants.JSON_KEYS.MOVIE
-                                .VOTE_AVERAGE));
-                        movieList.add(movie);
-                    }
-                    return movieList;
-                }
-            } catch (MalformedURLException urlEx) {
-                Log.e(TAG, "could not parse url " + urlEx);
-            } catch (IOException ioEx) {
-                Log.e(TAG, "could not open connection " + ioEx);
-            } catch (JSONException jex) {
-                Log.e(TAG, "could not parse data to JSON" + jex);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
-            if (movies == null)
-                return;
-
-            if (movieAdapter != null)
-                movieAdapter.addAll(movies);
-            MovieListFragment.this.movies = (ArrayList) movies;
-        }
-    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -181,7 +130,12 @@ public class MovieListFragment extends Fragment {
             outState.putParcelableArrayList("movies", movies);
         }
     }
-    public interface Callback{
+
+    public interface Callback {
         void OnItemSelected(Intent intent);
+    }
+
+    public interface OnMovieClickListener {
+        void onClick(Movie movie);
     }
 }

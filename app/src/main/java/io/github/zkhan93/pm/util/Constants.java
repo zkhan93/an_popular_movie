@@ -6,9 +6,6 @@ package io.github.zkhan93.pm.util;
  */
 public interface Constants {
     interface URL {
-        String BASE = "http://api.themoviedb.org/3/movie/";
-        String POP_MOVIES = BASE + "popular";
-        String TOP_MOVIES = BASE + "top_rated";
         String IMG_BASE = "http://image.tmdb.org/t/p/";
     }
 
