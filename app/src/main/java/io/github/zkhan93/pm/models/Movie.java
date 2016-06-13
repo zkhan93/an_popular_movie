@@ -18,7 +18,8 @@ public class Movie implements Parcelable {
     @SerializedName("release_date")
     private Date releaseDate;
     @SerializedName("vote_average")
-    private float rating, popularity;
+    private float rating;
+    private float popularity;
     private boolean isFavorite;
     private int id;
     private static String POSTER_URL_PREFIX = "http://image.tmdb.org/t/p/w185";
