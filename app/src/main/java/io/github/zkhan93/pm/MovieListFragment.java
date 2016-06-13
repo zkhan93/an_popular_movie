@@ -49,7 +49,7 @@ public class MovieListFragment extends Fragment {
                 }
                 if (movieAdapter != null)
                     movieAdapter.addAll(movies);
-                MovieListFragment.this.movies = (ArrayList) movies;
+                MovieListFragment.this.movies = (ArrayList<Movie>) movies;
             }
 
             @Override

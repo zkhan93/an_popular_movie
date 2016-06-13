@@ -81,8 +81,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         }
 
         public void populateView(Movie movie) {
-            Picasso.with(context).load(movie.getFullPosterPath()).error(R.drawable
-                    .ic_error_outline_white_36dp).into(poster);
+            Picasso.with(context).load(movie.getFullPosterPath()).into(poster);
             this.movie = movie;
         }
 

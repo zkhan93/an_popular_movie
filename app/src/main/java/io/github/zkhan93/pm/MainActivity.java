@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements MovieListFragment.Callback {
     private boolean mTwoPane;
@@ -56,13 +55,13 @@ public class MainActivity extends AppCompatActivity implements MovieListFragment
         if (mTwoPane) {
             DetailActivityFragment daf = (DetailActivityFragment) getSupportFragmentManager()
                     .findFragmentByTag(DetailActivityFragment.TAG);
-            if (daf != null) {
-                daf.displayMovieFromIntent(intent);
-            } else {
+            if (daf == null) {
                 daf = new DetailActivityFragment();
                 getSupportFragmentManager().beginTransaction().replace(R.id
                         .detail_fragment_container, daf, DetailActivityFragment.TAG).commit();
             }
+            if (intent != null)
+                daf.displayMovieFromIntent(intent);
         } else {
             startActivity(intent);
         }

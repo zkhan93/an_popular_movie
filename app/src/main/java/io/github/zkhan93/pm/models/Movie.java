@@ -18,7 +18,7 @@ public class Movie implements Parcelable {
     @SerializedName("release_date")
     private Date releaseDate;
     @SerializedName("vote_average")
-    private float rating;
+    private float rating, popularity;
     private boolean isFavorite;
     private int id;
     private static String POSTER_URL_PREFIX = "http://image.tmdb.org/t/p/w185";
@@ -35,7 +35,8 @@ public class Movie implements Parcelable {
         boolean[] flags = new boolean[1];
         in.readBooleanArray(flags);
         this.isFavorite = flags[0];
-        id=in.readInt();
+        id = in.readInt();
+        popularity = in.readFloat();
     }
 
     public String getTitle() {
@@ -82,6 +83,22 @@ public class Movie implements Parcelable {
         this.rating = rating;
     }
 
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public float getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(float popularity) {
+        this.popularity = popularity;
+    }
+
     @Override
     public int describeContents() {
         return 1;
@@ -100,6 +117,7 @@ public class Movie implements Parcelable {
         dest.writeFloat(rating);
         dest.writeBooleanArray(new boolean[]{isFavorite});
         dest.writeInt(id);
+        dest.writeFloat(popularity);
     }
 
     public static final Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
